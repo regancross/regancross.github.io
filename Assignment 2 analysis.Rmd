@@ -1,0 +1,50 @@
+---
+title: "DataAnalysis.Rmd"
+author: "Regan Cross"
+date: "28/01/2020"
+output: html_document
+---
+
+This is an analysis for a dataset that was constructed in the Assignment 2.Rmd file in regancross.github.io.
+MData contains limb lenghts and widths for 10 species. 
+```{r, message=F}
+library(tidyverse)
+MData <- read.csv("Data/measurements.csv")
+MData$Species <- as.character(MData$Species)
+MData <- MData %>% select(-X) %>% rename(L_wi = Limb.width, unW = unitsW, L_le = Limb.length, unL = unitsL) %>% 
+  mutate(LW_mm = ifelse(unW == "cm", (L_wi*10), L_wi), LL_mm = ifelse(unL == "cm", (L_le*10), L_le), 
+         Vol_mm = LW_mm*LW_mm*LL_mm, group = ifelse(nchar(Species)>19, "long_name", "short_name"))
+
+summary <- MData %>% group_by(group) %>% summarise(meanL = mean(LL_mm), sdL = sd(LL_mm), meanW = mean(LW_mm), 
+                                                   sdW = sd(LW_mm), meanV = mean(Vol_mm), sdV = sd(Vol_mm))
+
+```
+
+```{r fig.align = "center"}
+ggplot(MData, aes(x = LW_mm, y = LL_mm)) +
+  geom_point(size = 3) +
+  theme_classic() +
+  labs(x = "Limb width", y = "Limb length")
+```
+**Figure 1.** Limb length and widths, in mm, of 10 coastal dune plant species. 
+
+```{r fig.align='center'}
+MData <- MData %>% mutate(big = ifelse(Vol_mm > mean(MData$Vol_mm), "Y", "N"))
+BigPlants <- MData %>% filter(big == "Y")
+
+ggplot(BigPlants, aes(x = LW_mm, y = LL_mm)) +
+  geom_point(size = 3) +
+  theme_classic() +
+  labs(x = "Limb width", y = "Limb length", title = "Big Plants") +
+  scale_x_continuous(breaks = scales::pretty_breaks(n = 6), limits = c(0,260)) +
+  scale_y_continuous(breaks = scales::pretty_breaks(n = 5), limits = c(0,2000)) +
+  theme(plot.title = element_text(hjust = 0.5, size = 16))
+```
+**Figure 2.** Limb length and widths, in mm, of only those coastal dune plant species with limb volumes greater than the average limb volume. 
+
+```{r}
+SmallPlants <- MData %>% filter(big == "N")
+summarySP <- SmallPlants %>% select(Species, Vol_mm)
+summarySP
+```
+**Table 1.** Limb volumes, in mm, of those coastal dune plant species which have volumes smaller than average. 

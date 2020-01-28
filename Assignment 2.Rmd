@@ -1,0 +1,25 @@
+---
+title: "DataGeneration.R"
+author: "Regan Cross"
+date: "28/01/2020"
+output: html_document
+---
+
+
+```{r}
+Species <- c("Camissoniopsis cheiranthifolia", "Abronia umbellata", "Polygonum paronychia", "Lupinus littoralis", "Lathyrus japonicus", "Calystegia soldanella", "Ammophila arenaria", "Carpobrotus edulis", "Pinus contorta", "Glehnia littoralis")
+
+Limb.width <- abs(rnorm(10, mean = 10, sd = 10))
+
+unitsW <- sample(c("mm", "cm"), size = 10, replace= T)
+
+Limb.length <- abs(rnorm(10, mean = 100, sd = 100))
+
+unitsL <- sample(c("mm", "cm"), size = 10, replace= T)
+
+MyData <- data.frame(Species, Limb.width, unitsW, Limb.length, unitsL)
+
+write.csv(MyData, file = "Data/measurements.csv")
+```
+
+
